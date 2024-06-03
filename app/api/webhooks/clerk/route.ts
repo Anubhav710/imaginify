@@ -7,6 +7,10 @@ import { Webhook } from "svix";
 
 import { createUser, deleteUser, updateUser } from "@/lib/actions/user.action";
 
+export async function GET() {
+  return NextResponse.json({ message: "Working" });
+}
+
 export async function POST(req: Request) {
   // You can find this in the Clerk Dashboard -> Webhooks -> choose the webhook
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
@@ -62,6 +66,10 @@ export async function POST(req: Request) {
     const { id, email_addresses, image_url, first_name, last_name, username } =
       evt.data;
 
+    if (!id || !email_addresses) {
+      return new Response("Error occurred while creating", { status: 400 });
+    }
+
     const user = {
       clerkId: id,
       email: email_addresses[0].email_address,
@@ -81,6 +89,7 @@ export async function POST(req: Request) {
         },
       });
     }
+    console.log("message sent successfully");
 
     return NextResponse.json({ message: "OK", user: newUser });
   }
@@ -114,8 +123,4 @@ export async function POST(req: Request) {
   console.log("Webhook body:", body);
 
   return new Response("", { status: 200 });
-}
-
-export async function GET() {
-  return NextResponse.json({ message: "OK" });
 }
