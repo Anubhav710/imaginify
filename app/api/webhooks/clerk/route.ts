@@ -7,10 +7,6 @@ import { Webhook } from "svix";
 
 import { createUser, deleteUser, updateUser } from "@/lib/actions/user.action";
 
-export async function GET() {
-  return NextResponse.json({ message: "Working" });
-}
-
 export async function POST(req: Request) {
   // You can find this in the Clerk Dashboard -> Webhooks -> choose the webhook
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
@@ -75,11 +71,19 @@ export async function POST(req: Request) {
       photo: image_url,
     };
 
-    console.log(user);
+    const newUser = await createUser(user);
 
+    // Set public metadata
+    if (newUser) {
+      await clerkClient.users.updateUserMetadata(id, {
+        publicMetadata: {
+          userId: newUser._id,
+        },
+      });
+    }
     console.log("message sent successfully");
 
-    return NextResponse.json({ message: "OK", user });
+    return NextResponse.json({ message: "OK", user: newUser });
   }
 
   // UPDATE
@@ -111,4 +115,8 @@ export async function POST(req: Request) {
   console.log("Webhook body:", body);
 
   return new Response("", { status: 200 });
+}
+
+export async function GET() {
+  return NextResponse.json({ message: "OK" });
 }
