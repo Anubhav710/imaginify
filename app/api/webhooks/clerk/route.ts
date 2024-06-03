@@ -66,10 +66,6 @@ export async function POST(req: Request) {
     const { id, email_addresses, image_url, first_name, last_name, username } =
       evt.data;
 
-    if (!id || !email_addresses) {
-      return new Response("Error occurred while creating", { status: 400 });
-    }
-
     const user = {
       clerkId: id,
       email: email_addresses[0].email_address,
@@ -79,19 +75,11 @@ export async function POST(req: Request) {
       photo: image_url,
     };
 
-    const newUser = await createUser(user);
+    console.log(user);
 
-    // Set public metadata
-    if (newUser) {
-      await clerkClient.users.updateUserMetadata(id, {
-        publicMetadata: {
-          userId: newUser._id,
-        },
-      });
-    }
     console.log("message sent successfully");
 
-    return NextResponse.json({ message: "OK", user: newUser });
+    return NextResponse.json({ message: "OK", user });
   }
 
   // UPDATE
